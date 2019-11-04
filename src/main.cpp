@@ -22,7 +22,8 @@
 #include "cgl/cgl.h"
 
 
-static int dblBuf[] = { GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_DOUBLEBUFFER, None };
+/* No depth buffer necessary for 2D */
+static int dblBuf[] = { GLX_RGBA, /* GLX_DEPTH_SIZE, 16, */ GLX_DOUBLEBUFFER, None };
 
 /* cgl object */
 static cgl::cgl *gl = NULL;
@@ -36,8 +37,8 @@ void fatalError(const char *message) {
 void redraw(void) {
 	gl->Clear();
 	gl->AddLine(10, 10, 100, 100, 0, 0, 1, 0.3);
-	gl->AddBox(10, 50, 60, 100, 0, 1, 0, 0.3);
-	gl->AddTriangle(10, 10, 100, 10, 10, 100, 1, 0, 0, 0.3);
+	gl->AddTriangle(20, 20, 80, 20, 20, 80, 1, 0, 0, 1);
+	gl->AddTriangle(10, 10, 100, 10, 10, 100, 0, 1, 0, 0.5);
 	gl->Render();
 }
 

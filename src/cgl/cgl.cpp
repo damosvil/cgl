@@ -47,10 +47,11 @@ void cgl::Attach(Display *d, Window w, XVisualInfo *i)
 	/* Bind context to window */
 	glXMakeCurrent(d, w, cx);
 
-	/* Prepare depth buffer */
-	glEnable(GL_DEPTH_TEST); /* enable depth buffering */
-	glDepthFunc(GL_LESS); /* pedantic, GL_LESS is the default */
-	glClearDepth(1.0); /* pedantic, 1.0 is the default */
+	/* No depth is necessary for 2D */
+//	/* Prepare depth buffer */
+//	glEnable(GL_DEPTH_TEST); /* enable depth buffering */
+//	glDepthFunc(GL_LESS); /* pedantic, GL_LESS is the default */
+//	glClearDepth(1.0); /* pedantic, 1.0 is the default */
 
 	/* Select glClear color */
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -59,9 +60,10 @@ void cgl::Attach(Display *d, Window w, XVisualInfo *i)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	/* No lighting is necessary for 2D */
 //	glEnable(GL_LIGHTING);
 //	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, vAmbientLightBright);
-//	glColorMaterial (GL_FRONT, GL_AMBIENT) ;
+//	glColorMaterial (GL_FRONT, GL_AMBIENT_AND_DIFFUSE) ;
 //	glEnable(GL_COLOR_MATERIAL);
 
 	/* Configure projection */
@@ -71,6 +73,10 @@ void cgl::Attach(Display *d, Window w, XVisualInfo *i)
 
 	/* Configure viewport */
 	glViewport(0, 0, wa.width, wa.height);
+
+	/* Initialize model view */
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	m_display = d;
 	m_window = w;
@@ -95,11 +101,14 @@ void cgl::SizeChanged()
 
 void cgl::Clear()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	/* Depth buffer not necessary for 2D */
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-	/* Initialize model view */
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	/* No Model view reinitialization necessary for 2D */
+//	/* Initialize model view */
+//	glMatrixMode(GL_MODELVIEW);
+//	glLoadIdentity();
 }
 
 void cgl::Render()
