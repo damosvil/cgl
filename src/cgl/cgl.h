@@ -15,6 +15,26 @@
 
 namespace cgl {
 
+struct cgl_color
+{
+	GLubyte r;
+	GLubyte g;
+	GLubyte b;
+	GLubyte a;
+};
+
+struct cgl_point
+{
+	float x;
+	float y;
+};
+
+struct cgl_angle
+{
+	float start;
+	float end;
+};
+
 class cgl
 {
 
@@ -32,11 +52,12 @@ public:
 	void SizeChanged();
 	void Clear();
 	void Render();
-	void AddLine(float x1, float y1, float x2, float y2, float R, float G, float B, float A);
-	void AddTriangle(float x1, float y1, float x2, float y2, float x3, float y3, float R, float G, float B, float A);
-	void AddRectangle(float x1, float y1, float x2, float y2, float R, float G, float B, float A);
-	void AddBox(float x1, float y1, float x2, float y2, float R, float G, float B, float A);
-	void AddEllipse(float x1, float y1, float x2, float y2, float R, float G, float B, float A);
+	void AddLine(const cgl_point *p1, const cgl_point *p2, const cgl_color *c);
+	void AddTriangle(const cgl_point *p1, const cgl_point *p2, const cgl_point *p3, const cgl_color *c);
+	void AddRectangle(const cgl_point *p1, const cgl_point *p2, const cgl_color *c);
+	void AddBox(const cgl_point *p1, const cgl_point *p2, const cgl_color *c);
+	void AddEllipse(const cgl_point *p1, const cgl_point *p2, const cgl_color *c);
+	void AddArc(const cgl_point *p1, const cgl_point *p2, const cgl_angle *a, const cgl_color *c);
 
 };
 

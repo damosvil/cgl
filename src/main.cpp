@@ -34,11 +34,34 @@ void fatalError(const char *message) {
 	exit(1);
 }
 
-void redraw(void) {
+void Redraw(void) {
 	gl->Clear();
-	gl->AddLine(10, 10, 100, 100, 0, 0, 1, 0.3);
-	gl->AddTriangle(20, 20, 80, 20, 20, 80, 1, 0, 0, 1);
-	gl->AddTriangle(10, 10, 100, 10, 10, 100, 0, 1, 0, 0.5);
+
+	cgl::cgl_angle d = { 0 * 3.141592f / 180, 100 * 3.141592f / 180};
+	cgl::cgl_point u1 = {10, 10};
+	cgl::cgl_point v1 = {100, 100};
+	cgl::cgl_color c1 = {0, 0, 255, 80};
+	gl->AddLine(&u1, &v1, &c1);
+	gl->AddArc(&u1, &v1, &d, &c1);
+
+	cgl::cgl_point u2 = {20, 20};
+	cgl::cgl_point v2 = {20, 80};
+	cgl::cgl_point w2 = {80, 20};
+	cgl::cgl_color c2 = {0, 255, 0, 80};
+	gl->AddTriangle(&u2, &v2, &w2, &c2);
+
+
+	cgl::cgl_point u3 = {10, 10};
+	cgl::cgl_point v3 = {100, 10};
+	cgl::cgl_point w3 = {10, 100};
+	cgl::cgl_color c3 = {255, 0, 0, 80};
+	gl->AddTriangle(&u3, &v3, &w3, &c3);
+
+	cgl::cgl_point u4 = {20, 20};
+	cgl::cgl_point v4 = {90, 90};
+	cgl::cgl_color c4 = {0, 255, 255, 80};
+	gl->AddEllipse(&u4, &v4, &c4);
+
 	gl->Render();
 }
 
@@ -49,8 +72,10 @@ int main(int argc, char **argv) {
 	Colormap cmap;
 	XSetWindowAttributes swa;
 	XEvent event;
-	GLboolean needRedraw = GL_FALSE;
 	int dummy;
+	KeySym keysym;
+	char buffer;
+	bool update = false;
 
 	/*** (1) open a connection to the X server ***/
 
@@ -94,42 +119,50 @@ int main(int argc, char **argv) {
 	while (1) {
 		do {
 			XNextEvent(display, &event);
-			switch (event.type) {
 
-			case KeyPress: {
-				KeySym keysym;
-				char buffer[1];
+			switch (event.type)
+			{
 
+			case KeyPress:
 				/* It is necessary to convert the keycode to a keysym before checking if it is an escape */
-				if ((XLookupString((XKeyEvent *) &event, buffer, 1, &keysym, NULL) == 1) && (keysym == (KeySym) XK_Escape))
+				if ((XLookupString(&event.xkey, &buffer, 1, &keysym, NULL) == 1) && (keysym == XK_Escape))
 					exit(0);
 				break;
-			}
 
 			case ButtonPress:
-				switch (event.xbutton.button) {
+				/* Mouse button */
+				switch (event.xbutton.button)
+				{
+
 				case 1:
 					break;
+
 				case 2:
 					break;
+
 				case 3:
 					break;
+
 				}
 				break;
 
 			case ConfigureNotify:
+				/* Window changed */
 				gl->SizeChanged();
+				update = true;
+				break;
+
 			case Expose:
-				needRedraw = GL_TRUE;
+				/* Window need redraw */
+				update = true;
 				break;
 
 			}
 		} while (XPending(display)); /* loop to compress events */
 
-		if (needRedraw) {
-			redraw();
-			needRedraw = GL_FALSE;
-		}
+		/* Redraw everything */
+		if (update)
+			Redraw();
 	}
 
 	return 0;

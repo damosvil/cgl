@@ -5,7 +5,13 @@
  *      Author: iso9660
  */
 
+#include <float.h>
+#include <math.h>
 #include "cgl.h"
+
+
+using namespace std;
+
 
 namespace cgl
 {
@@ -25,12 +31,13 @@ cgl::~cgl()
 
 void cgl::Attach(Display *d, Window w, XVisualInfo *i)
 {
-	float vAmbientLightBright[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+//	float vAmbientLightBright[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	XWindowAttributes wa;
 	GLXContext cx;
 
 	if (d == NULL || i == NULL || w == 0)
 		throw "Some of the given inputs is NULL";
+#include <float.h>
 
 	XGetWindowAttributes(d, w, &wa);
 
@@ -105,7 +112,7 @@ void cgl::Clear()
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	/* No Model view reinitialization necessary for 2D */
+	/* No model view reinitialization necessary for 2D */
 //	/* Initialize model view */
 //	glMatrixMode(GL_MODELVIEW);
 //	glLoadIdentity();
@@ -117,58 +124,84 @@ void cgl::Render()
 	glXSwapBuffers(m_display, m_window);
 }
 
-void cgl::AddLine(float x1, float y1, float x2, float y2, float R, float G, float B, float A)
+void cgl::AddLine(const cgl_point *p1, const cgl_point *p2, const cgl_color *c)
 {
-	glColor4f(R, G, B, A);
+	glColor4ub(c->r, c->g, c->b, c->a);
 
 	glBegin(GL_LINES);
-	glVertex3f(x1, y1, 0);
-	glVertex3f(x2, y2, 0);
+	glVertex2f(p1->x, p1->y);
+	glVertex2f(p2->x, p2->y);
 	glEnd();
 }
 
-void cgl::AddTriangle(float x1, float y1, float x2, float y2, float x3, float y3, float R, float G, float B, float A)
+void cgl::AddTriangle(const cgl_point *p1, const cgl_point *p2, const cgl_point *p3, const cgl_color *c)
 {
-	glColor4f(R, G, B, A);
+	glColor4ub(c->r, c->g, c->b, c->a);
 
 	glBegin(GL_TRIANGLES);
-	glVertex3f(x1, y1, 0);
-	glVertex3f(x2, y2, 0);
-	glVertex3f(x3, y3, 0);
+	glVertex2f(p1->x, p1->y);
+	glVertex2f(p2->x, p2->y);
+	glVertex2f(p3->x, p3->y);
 	glEnd();
 }
 
-void cgl::AddRectangle(float x1, float y1, float x2, float y2, float R, float G, float B, float A)
+void cgl::AddRectangle(const cgl_point *p1, const cgl_point *p2, const cgl_color *c)
 {
-	glColor4f(R, G, B, A);
+	glColor4ub(c->r, c->g, c->b, c->a);
 
 	glBegin(GL_LINES);
-	glVertex3f(x1, y1, 0);
-	glVertex3f(x2, y1, 0);
-	glVertex3f(x2, y2, 0);
-	glVertex3f(x1, y2, 0);
-	glVertex3f(x1, y1, 0);
+	glVertex2f(p1->x, p1->y);
+	glVertex2f(p2->x, p1->y);
+	glVertex2f(p2->x, p2->y);
+	glVertex2f(p1->x, p2->y);
+	glVertex2f(p1->x, p1->y);
 	glEnd();
 }
 
-void cgl::AddBox(float x1, float y1, float x2, float y2, float R, float G, float B, float A)
+void cgl::AddBox(const cgl_point *p1, const cgl_point *p2, const cgl_color *c)
 {
-	glColor4f(R, G, B, A);
+	glColor4ub(c->r, c->g, c->b, c->a);
 
 	glBegin(GL_TRIANGLES);
-	glVertex3f(x1, y1, 0);
-	glVertex3f(x2, y1, 0);
-	glVertex3f(x2, y2, 0);
-	glVertex3f(x1, y1, 0);
-	glVertex3f(x2, y2, 0);
-	glVertex3f(x1, y2, 0);
+	glVertex2f(p1->x, p1->y);
+	glVertex2f(p2->x, p1->y);
+	glVertex2f(p2->x, p2->y);
+	glVertex2f(p1->x, p1->y);
+	glVertex2f(p2->x, p2->y);
+	glVertex2f(p1->x, p2->y);
 	glEnd();
 }
 
-void cgl::AddEllipse(float x1, float y1, float x2, float y2, float R, float G, float B, float A)
+void cgl::AddArc(const cgl_point *p1, const cgl_point *p2, const cgl_angle *a, const cgl_color *c)
 {
+	float cx = (p1->x + p2->x) / 2, cy = (p1->y + p2->y) / 2;
+	float rx = (p2->x - p1->x) / 2;
+	float ry = (p1->y - p2->y) / 2;
+	float adelta = ((a->end < a->start) ? a->end + 360 - a->start : a->end - a->start) / 64;
+	float aa = a->start;
+	cgl_point u, v;
 
+	u.x = cx + rx * sin(aa);
+	u.y = cy + ry * cos(aa);
+	aa += adelta;
+
+	for (uint32_t i = 1; i <= 64; i++)
+	{
+		v.x = cx + rx * sin(aa);
+		v.y = cy + ry * cos(aa);
+		aa += adelta;
+
+		AddLine(&u, &v, c);
+		u = v;
+	}
 }
+
+void cgl::AddEllipse(const cgl_point *p1, const cgl_point *p2, const cgl_color *c)
+{
+	cgl_angle d = { 0, 2 * 3.141592f};
+	AddArc(p1, p2, &d, c);
+}
+
 
 
 } /* namespace cgl */
