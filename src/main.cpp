@@ -35,9 +35,9 @@ void fatalError(const char *message) {
 
 void redraw(void) {
 	gl->Clear();
-	gl->AddLine(10, 10, 100, 100, 0, 0, 1, 0.1);
-	gl->AddBox(10, 50, 60, 100, 0, 1, 0, 0.5);
-	gl->AddTriangle(10, 10, 100, 10, 10, 100, 1, 0, 0, 0.5);
+	gl->AddLine(10, 10, 100, 100, 0, 0, 1, 0.3);
+	gl->AddBox(10, 50, 60, 100, 0, 1, 0, 0.3);
+	gl->AddTriangle(10, 10, 100, 10, 10, 100, 1, 0, 0, 0.3);
 	gl->Render();
 }
 

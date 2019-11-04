@@ -25,6 +25,7 @@ cgl::~cgl()
 
 void cgl::Attach(Display *d, Window w, XVisualInfo *i)
 {
+	float vAmbientLightBright[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	XWindowAttributes wa;
 	GLXContext cx;
 
@@ -54,9 +55,14 @@ void cgl::Attach(Display *d, Window w, XVisualInfo *i)
 	/* Select glClear color */
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 
-	/* Activate OpgnGL color blending */
+	/* Activate OpenGL color blending */
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+//	glEnable(GL_LIGHTING);
+//	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, vAmbientLightBright);
+//	glColorMaterial (GL_FRONT, GL_AMBIENT) ;
+//	glEnable(GL_COLOR_MATERIAL);
 
 	/* Configure projection */
 	glMatrixMode(GL_PROJECTION);
@@ -65,10 +71,6 @@ void cgl::Attach(Display *d, Window w, XVisualInfo *i)
 
 	/* Configure viewport */
 	glViewport(0, 0, wa.width, wa.height);
-
-	/* Initialize model view */
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 
 	m_display = d;
 	m_window = w;
@@ -94,6 +96,10 @@ void cgl::SizeChanged()
 void cgl::Clear()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	/* Initialize model view */
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 void cgl::Render()
